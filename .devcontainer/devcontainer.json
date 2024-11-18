@@ -1,0 +1,81 @@
+// See https://aka.ms/vscode-remote/devcontainer.json for format details.
+{
+    "image": "ghcr.io/robotics-content-lab/rclpy-from-zero-to-hero:iron-desktop-terminal-nvidia", // georgno/clpy-from-zero-to-hero:${ROS2-VERSION}-{BASE}-{UI}-{GRAPHICS-PLATFORM}
+	"remoteUser": "ros_user",
+
+	// Commands to run before, during and after starting the container //
+	"initializeCommand": "xhost + || true",  // (Linux only) allow the container to access the X11 server
+	"onCreateCommand": "bash /home/ros_user/build_ws.sh || true",  // sources the ros2 workspaces (~/sim_ws, ~/ros2_ws)
+	"updateContentCommand": "sudo bash /home/ros_user/.vnc/startup.sh || true", // (vnc UI only) starts the vnc server
+	
+	// Set run arguments for the container //
+	"runArgs": [
+		// Mount the local workspace folder into the container //
+		"--mount", "type=bind,source=${localWorkspaceFolder}/ros2_src/,target=/home/ros_user/ros2_ws/src", // mount the ros2_src folder into the container
+		"--volume", "${localWorkspaceFolder}/_build/html:/home/jupyter_book", // mount the jupyter book build folder into the container
+		
+		// Resource settings //
+		// "--shm-size=512m", // this sets the shared memory size to 512MB (needed for rviz2)
+		"--gpus=all",  // this is needed for hardware acceleration on nvidia gpus
+		"--privileged",
+		"--device", "/dev/dri:/dev/dri", // this is needed for hardware acceleration on amd gpus
+		
+		// Network settings //
+		"--publish", "0.0.0.0:6080:80",  // this is needed for the noVNC web interface
+		"--publish", "0.0.0.0:6900:5901",  // this is needed for the VNC server
+		"--publish", "0.0.0.0:8080:8080",  // this is needed for the nginx web server
+		
+		// Container settings //
+			// Linux Host //
+				"--volume", "/tmp/.X11-unix:/tmp/.X11-unix:rw", // (Linux only) needed for X11 forwarding
+			// Windows WSLg Host //
+				// "--volume", "/run/desktop/mnt/host/wslg/.X11-unix:/tmp/.X11-unix:rw", // this is needed for X11 forwarding on windows
+				// "--volume", "/run/desktop/mnt/host/wslg:/mnt/wslg",
+			// OSX Silicon Host //
+				// "--volume", "/tmp/.X11-unix:/tmp/.X11-unix:rw", // (OSX only) needed for X11 forwarding
+		"--rm",  // remove the container when it is stopped
+		"--name", "rclpy-from-zero-to-hero-iron"  // name the container
+	],
+
+	// Set environment variables for the container //
+	"containerEnv": {
+		"VNC_WIDTH": "1920", // set the width of the VNC server
+		"VNC_HEIGHT": "1080", // set the height of the VNC server
+		// Linux Host //
+			"DISPLAY": "${localEnv:DISPLAY}", // sets the X11 display for linux
+			"WAYLAND_DISPLAY": "${localEnv:WAYLAND_DISPLAY}", // sets the wayland display for linux
+			"XDG_RUNTIME_DIR": "${localEnv:XDG_RUNTIME_DIR}", // sets the XDG_RUNTIME_DIR for linux
+		// Windows WSLg
+			// "DISPLAY": ":0",
+			// "WAYLAND_DISPLAY": "wayland-0",
+			// "XDG_RUNTIME_DIR": "/mnt/wslg/runtime-dir",
+			// "PULSE_SERVER": "/mnt/wslg/PulseServer",
+		// OSX Silicon Host //
+			// "DISPLAY": "host.docker.internal:0", // sets the X11 display for OSX
+			// "WAYLAND_DISPLAY": "host.docker.internal:0", // sets the wayland display for OSX
+			// "XDG_RUNTIME_DIR": "/tmp", // sets the XDG_RUNTIME_DIR for OSX
+			// "LIBGL_ALWAYS_SOFTWARE": "1", // Needed for software rendering of opengl (only needed on Apple Silicon)
+	},
+	
+	// Set *default* container specific settings.json values on container create.
+	"customizations": {
+		"vscode": {
+			"extensions": [
+                "ms-iot.vscode-ros",
+                "zachflower.uncrustify",
+                "ms-python.python",
+                "twxs.cmake",
+                "ms-vscode.cpptools",
+                "ms-vscode.cpptools-extension-pack",
+                "redhat.vscode-yaml",
+                "smilerobotics.urdf",
+                "DotJoshJohnson.xml",
+                "yzhang.markdown-all-in-one",
+			],
+			"settings": {
+				"files.eol": "\n",
+				"editor.wordWrap": "on"
+			}
+		}
+	}
+}
