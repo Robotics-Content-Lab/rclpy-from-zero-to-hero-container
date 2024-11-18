@@ -1,6 +1,3 @@
-Here’s a structured and streamlined README file based on the provided `devcontainer.json` configuration:
-
-```md
 # DevContainer Setup for ROS 2 Development
 
 This guide explains how to set up and run a development container (`devcontainer`) for ROS 2 projects using the provided `devcontainer.json` configuration. The setup supports various host types (Linux, Windows WSLg, and macOS).

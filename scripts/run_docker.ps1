@@ -45,7 +45,7 @@ try {
     }
     Push-Location $BASE_DIR
 
-    if ($null -eq $GRAPHICS_PLATFORM) {
+    if ($null -eq $GRAPHICS_PLATFORM -or $GRAPHICS_PLATFORM -eq "") {
         $GPU = ((Get-WmiObject Win32_VideoController) | Select-Object -ExpandProperty Name) -join " "
         $GPU = $GPU.ToLower()
         if ($GPU -like "*nvidia*") {
@@ -92,8 +92,8 @@ try {
             "--rm"
             $volumeArg
             "--env=`"QT_X11_NO_MITSHM=1`""
-            "--volume=`"/mnt/host/wslg/.X11-unix:/tmp/.X11-unix:rw`""
-            "--volume=`"/mnt/host/wslg:/mnt/wslg`""
+            "--volume=`"/mnt/wslg/.X11-unix:/tmp/.X11-unix:rw`""
+            "--volume=`"/mnt/wslg:/mnt/wslg`""
             "--env=`"DISPLAY=:0`" "
             "--env=`"VGL_DISPLAY=:0`" "
             "--env=`"XDG_RUNTIME_DIR=/mnt/wslg/runtime-dir`""
